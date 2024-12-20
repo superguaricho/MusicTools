@@ -1,4 +1,4 @@
-Fork of MusicTools, a Agda library, a collection of types and functions to build applications to analyze and synthesize music. This fork will include some documents by the authors of the project and some changes in its original codes to make it runing. Tested with Agda-2.6.4.3,  Agda standard-library-2.0, and ghc-9.4.8. It is intended for fun and learn about the dependently typed  Agda language.
+Fork of MusicTools, a Agda library with a collection of types and functions to build applications to analyze and synthesize music. This fork will include some documents by the authors of the project and some changes in its original codes to make it runing. Tested with Agda-2.6.4.3,  Agda standard-library-2.0, and ghc-9.4.8. It is intended for fun and learn about the dependently typed  Agda language.
 
 # MusicTools
 
