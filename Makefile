@@ -26,24 +26,25 @@ all: build
 
 # Rule to build the Haskell executable.
 # First ensures that the 'agda' rule has been executed.
-build: agda
+build:
 	@echo "--> Building the Haskell executable with Cabal..."
 	@cd haskell && $(CABAL) build
 
 # Rule to compile Agda code to Haskell.
-agda:
+agda/Main:
 	@echo "--> Compiling Agda code to Haskell..."
 	@$(AGDA_COMPILE_CMD)
 
-midi: agda
-	@echo "--> Creating test.mid file..."
-	agda/Main 
+main:agda/Main
+	@if [ -z agda/Main ]; then make agda/Main; @echo agda/Main exists; fi
 
-play:
-	@if [ ! -f test.mid ]; then \
-		echo "--> test.mid does not exist. Generating..."; \
-		$(MAKE) midi; \
-	fi
+# Define test.mid as a target that depends on agda
+test.mid: agda/Main
+	@echo "--> Creating test.mid file..."
+	agda/Main
+
+# Make play depend on test.mid. You need timidity
+play: test.mid
 	@echo "--> Playing test.mid file..."
 	timidity test.mid -Os
 
@@ -57,5 +58,5 @@ clean:
 	@echo "--> Cleaning completed."
 
 # Declares that these rules do not produce files with their own name.
-.PHONY: all build agda clean
+.PHONY: all build main play clean
 
