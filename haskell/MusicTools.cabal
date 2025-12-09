@@ -9,9 +9,9 @@ maintainer:         leo@halfaya.org
 copyright:          2023 John Leo
 
 executable HMusicTools
-  hs-source-dirs:   src
+  hs-source-dirs:   src, ../agda
   main-is:          Main.hs
-  build-depends:    base ^>=4.17.0.0, xml, sbv, text, split, HCodecs,
+  build-depends:    base ^>=4.17.0.0, xml, sbv ^>=10.1, text, split, HCodecs,
   other-modules:    Expr, Midi, Serial, Smt, Xml
   default-language: Haskell2010
   

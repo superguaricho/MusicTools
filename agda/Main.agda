@@ -3,9 +3,10 @@
 module Main where
 
 open import Prelude
-open import IO.Primitive
+open import IO.Primitive.Core
 
 open import Beethoven
+open import Instruments
 open import Counterpoint using (defaultConstraints)
 open import Location     using (indexVoiceBeat; location; rectangle)
 open import Midi         using (exportTracks; track→htrack)
@@ -13,14 +14,22 @@ open import MidiEvent    using (counterpoint→events; events→tracks; defaultV
 open import Note         using (half; whole)
 open import SmtInterface using (solveToMidi)
 open import Variable     using (makeVars)
+open import MidiTypes
+
+{-# FOREIGN GHC import qualified Data.Text.IO #-}
 
 main : IO ⊤
 main = do
   let ticksPerBeat = 4 -- (1 = quarter notes; 4 = 16th notes)
-      file         = "/Users/leo/Music/MusicTools/test.mid"
+      noteDuration = whole -- Cambia este valor (ej. half, whole, qtr, o un número como 16)
+      voiceInstruments : Vec InstrumentNumber-1 3
+      -- voiceInstruments = piano ∷ piano ∷ piano ∷ []
+      voiceInstruments = violin ∷ flute ∷ trumpet ∷ []
+      file         = "test.mid"
       range        = rectangle (location 2 2) (location 4 11)
       source       = makeVars range (indexVoiceBeat (take 3 beethoven146m))
 --      range        = rectangle (location 1 2) (location 1 9)
 --      source       = makeVars range (indexVoiceBeat tanaka)
-  song             ← solveToMidi half defaultConstraints source
+  song             ← solveToMidi noteDuration voiceInstruments defaultConstraints source
+  -- song             ← solveToMidi noteDuration defaultConstraints source
   exportTracks file ticksPerBeat (map track→htrack song)

@@ -4,7 +4,7 @@ module SmtInterface where
 
 open import Prelude hiding (lookup; #_; _+_; _-_)
 
-open import IO.Primitive
+open import IO.Primitive.Core
 
 open import Constraint
 open import Counterpoint
@@ -19,6 +19,8 @@ open import Util using (_divℕ_)
 open import Smt using (HMaybe; just; nothing; HBExpr; B→HBExpr; solveConstraints)
 open import Symbolic
 open import Variable
+open import Instruments
+open import MidiTypes
 
 compileConstraints : List MConstraint → List HBExpr
 compileConstraints = map (B→HBExpr ∘ compileConstraint ∘ mc→c)
@@ -39,12 +41,17 @@ solvePitches cons lss = do
   let f      = mp→pitch (varDictionary vnames res)
   return (map (map f) mss)
 
-solveToMidi : Duration → ([[L]] → List (Ranged MConstraint)) → [[L]] → IO (List MidiTrack)
-solveToMidi dur cons lss = do
+-- solveToMidi : Duration → List InstrumentNumber-1 → ([[L]] → List (Ranged MConstraint)) → [[L]] → IO (List MidiTrack)
+-- solveToMidi : Duration → ([[L]] → List (Ranged MConstraint)) → [[L]] → IO (List MidiTrack)
+solveToMidi : {v : ℕ} → Duration → Vec InstrumentNumber-1 v → ([[L]] → List (Ranged MConstraint)) → [[L]] → IO (List MidiTrack)
+-- solveToMidi dur cons lss = do
+solveToMidi dur voiceInstruments cons lss = do
   pss      ← solvePitches cons lss
-  let tempo = 60 * dur -- 240 per note
+  let tempo = defaultTempo
+--  let tempo = 60 * dur -- 240 per note
       ess   = map (notes→events defaultVelocity ∘ (map (tone dur))) pss
-  return (events→tracks tempo ess)
+  return (events→tracks tempo voiceInstruments ess)
+  -- return (events→tracks tempo ess)
 
 solvePitches2 : (List MP → List MConstraint) → List MP → IO (List (Pitch × Pitch))
 solvePitches2 cons ms = do

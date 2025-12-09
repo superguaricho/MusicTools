@@ -3,7 +3,7 @@
 module Instruments where
 
 open import Data.Fin  using (#_)
-open import MidiEvent using (InstrumentNumber-1; maxChannels)
+open import MidiTypes using (InstrumentNumber-1; maxChannels)
 open import Data.Vec        using (Vec; []; _∷_)
 
 -- Start of an instrument list
@@ -38,6 +38,24 @@ distortionGuitar      = # 30
 guitarHarmonics       = # 31
 
 harp                  = # 46
+
+-- Cuerdas (Strings)
+violin                = # 40 -- String Ensemble 1
+viola                 = # 41 -- String Ensemble 2
+cello                 = # 42 -- String Ensemble 3
+contrabass            = # 43 -- String Ensemble 4
+
+-- Maderas (Woodwinds)
+flute                 = # 73
+oboe                  = # 69
+clarinet              = # 71
+bassoon               = # 70
+
+-- Metales (Brass)
+trumpet               = # 57
+trombone              = # 58
+tuba                  = # 59
+frenchHorn            = # 60
 
 ----------------
 

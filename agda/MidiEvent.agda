@@ -8,11 +8,13 @@ open import Music using (Melody; melody; Counterpoint; cp; Harmony; melody→not
 open import Note  using (Note; tone; rest)
 open import Pitch using (Pitch)
 open import Util  using (zipWithIndex)
+open import MidiTypes
+open import Instruments
 
 -- General MIDI instrument numbers range from 1 to 128,
 -- so this is the actual instrument number minus 1.
-InstrumentNumber-1 : Type
-InstrumentNumber-1 = Fin 128
+-- InstrumentNumber-1 : Type
+-- InstrumentNumber-1 = Fin 128
 
 Tick : Type
 Tick = ℕ
@@ -23,8 +25,8 @@ Velocity  = Fin 128
 defaultVelocity : Velocity
 defaultVelocity = # 60
 
-maxChannels : ℕ
-maxChannels = 16
+-- maxChannels : ℕ
+-- maxChannels = 16
 
 -- percussion is channel 10, so 9 as Channel-1
 Channel-1 : Type
@@ -79,6 +81,16 @@ counterpoint→events v (cp ms) = vmap (melody→events v) ms
 harmony→events : {v d : ℕ} → Velocity → Harmony v d → Vec (List MidiEvent) v
 harmony→events v = counterpoint→events v ∘ harmony→counterpoint
 
+{-
+events→tracks : Tempo → List InstrumentNumber-1 → List (List MidiEvent) → List MidiTrack
+events→tracks tempo voiceInstruments events =
+  let xs = zipWithIndex events
+      f : ℕ × List MidiEvent → MidiTrack
+      f x = track ("Voice " ++s (showℕ (suc (fst x))))
+                  (voiceInstruments !! (fst x)) -- Usa el instrumento de la lista
+                  (fst x) tempo (snd x)
+  in map f xs
+
 events→tracks : Tempo → List (List MidiEvent) → List MidiTrack
 events→tracks tempo events =
   let xs = zipWithIndex events
@@ -87,3 +99,19 @@ events→tracks tempo events =
                   (# 0) -- piano
                   (fst x) tempo (snd x)
   in map f xs
+-}
+
+-- Búsqueda parcial en un Vec usando un índice ℕ
+vecLookupℕ : {A : Type} {n : ℕ} → Vec A n → ℕ → Maybe A
+vecLookupℕ []       _       = nothing
+vecLookupℕ (x ∷ xs) zero    = just x
+vecLookupℕ (x ∷ xs) (suc i) = vecLookupℕ xs i
+
+events→tracks : {v : ℕ} → Tempo → Vec InstrumentNumber-1 v → List (List MidiEvent) → List MidiTrack
+events→tracks tempo voiceInstruments events =
+   let xs = zipWithIndex events
+       f : ℕ × List MidiEvent → MidiTrack
+       f x = track ("Voice " ++s (showℕ (suc (fst x))))
+                   (fromMaybe piano (vecLookupℕ voiceInstruments (fst x))) -- Usamos lookup y un valor por defecto
+                   (fst x) tempo (snd x)
+   in map f xs
