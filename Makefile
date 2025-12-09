@@ -10,10 +10,7 @@ AGDA_MAIN = agda/Main.agda
 # Banderas para pasar a GHC al compilar con Agda.
 # Incluyo todas las dependencias del .cabal para ser robustos.
 GHC_FLAGS = --ghc-flag="-package text" \
-            --ghc-flag="-package HCodecs" \
-            --ghc-flag="-package sbv" \
-            --ghc-flag="-package xml" \
-            --ghc-flag="-package split"
+            --ghc-flag="-package HCodecs"
 
 # Comando completo para compilar Agda a Haskell
 AGDA_COMPILE_CMD = $(AGDA) -c $(AGDA_MAIN) $(GHC_FLAGS)
@@ -38,10 +35,24 @@ agda:
 	@echo "--> Compilando el código de Agda a Haskell..."
 	@$(AGDA_COMPILE_CMD)
 
+midi: agda
+	@echo "--> Creando el archivo test.mid..."
+	agda/Main 
+
+play:
+	@if [ ! -f test.mid ]; then \
+		echo "--> test.mid no existe. Generando..."; \
+		$(MAKE) midi; \
+	fi
+	@echo "--> Reproduciendo el archivo test.mid..."
+	timidity test.mid -Os
+
 # Regla para limpiar todos los archivos generados.
 clean:
 	@echo "--> Limpiando archivos generados..."
 	@rm -rf agda/MAlonzo
+	@rm -rf agda/Main
+	@rm -rf test.mid
 	@cd haskell && $(CABAL) clean
 	@echo "--> Limpieza completada."
 
