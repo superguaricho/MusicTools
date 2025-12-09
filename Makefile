@@ -1,60 +1,61 @@
-# Makefile para el proyecto MusicTools
+# Makefile for the MusicTools project
 
-# --- Variables de Configuración ---
+# --- Configuration Variables ---
 
-# Comando para invocar Agda
+# Command to invoke Agda
 AGDA = agda
-# Archivo principal de Agda
+# Main Agda file
 AGDA_MAIN = agda/Main.agda
 
-# Banderas para pasar a GHC al compilar con Agda.
-# Incluyo todas las dependencias del .cabal para ser robustos.
+# Flags to pass to GHC when compiling with Agda.
+# Including all .cabal dependencies for robustness.
 GHC_FLAGS = --ghc-flag="-package text" \
             --ghc-flag="-package HCodecs"
 
-# Comando completo para compilar Agda a Haskell
+# Full command to compile Agda to Haskell
 AGDA_COMPILE_CMD = $(AGDA) -c $(AGDA_MAIN) $(GHC_FLAGS)
 
-# Comando para invocar Cabal
+# Command to invoke Cabal
 CABAL = cabal
 
 
-# --- Reglas de Construcción ---
+# --- Build Rules ---
 
-# La regla por defecto: 'make' o 'make all' construirán el ejecutable.
+# The default rule: 'make' or 'make all' will build the executable.
 all: build
 
-# Regla para construir el ejecutable de Haskell.
-# Primero se asegura de que la regla 'agda' se haya ejecutado.
+# Rule to build the Haskell executable.
+# First ensures that the 'agda' rule has been executed.
 build: agda
-	@echo "--> Construyendo el ejecutable de Haskell con Cabal..."
+	@echo "--> Building the Haskell executable with Cabal..."
 	@cd haskell && $(CABAL) build
 
-# Regla para compilar el código de Agda a Haskell.
+# Rule to compile Agda code to Haskell.
 agda:
-	@echo "--> Compilando el código de Agda a Haskell..."
+	@echo "--> Compiling Agda code to Haskell..."
 	@$(AGDA_COMPILE_CMD)
 
 midi: agda
-	@echo "--> Creando el archivo test.mid..."
+	@echo "--> Creating test.mid file..."
 	agda/Main 
 
 play:
 	@if [ ! -f test.mid ]; then \
-		echo "--> test.mid no existe. Generando..."; \
+		echo "--> test.mid does not exist. Generating..."; \
 		$(MAKE) midi; \
 	fi
-	@echo "--> Reproduciendo el archivo test.mid..."
+	@echo "--> Playing test.mid file..."
 	timidity test.mid -Os
 
-# Regla para limpiar todos los archivos generados.
+# Rule to clean all generated files.
 clean:
-	@echo "--> Limpiando archivos generados..."
+	@echo "--> Cleaning generated files..."
 	@rm -rf agda/MAlonzo
 	@rm -rf agda/Main
 	@rm -rf test.mid
 	@cd haskell && $(CABAL) clean
-	@echo "--> Limpieza completada."
+	@echo "--> Cleaning completed."
 
-# Declara que estas reglas no producen archivos con su mismo nombre.
+# Declares that these rules do not produce files with their own name.
 .PHONY: all build agda clean
+
